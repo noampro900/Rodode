@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black Paint Canvas</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 1px solid black;
+        }
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <canvas id="paintCanvas" width="500" height="500"></canvas><br>
+        <button id="downloadButton">Download Painted Image</button>
+    </div>
+
+    <script>
+        // Variables for painting
+        const canvas = document.getElementById('paintCanvas');
+        const ctx = canvas.getContext('2d');
+        let painting = false;
+
+        // Load a sample background image
+        const backgroundImage = new Image();
+        backgroundImage.src = 'https://noampro900.github.io/Rodode/frame_027_delay-0.03s.gif';  // Example image, replace with your URL
+
+        backgroundImage.onload = () => {
+            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+        };
+
+        // Start painting
+        function startPainting(e) {
+            painting = true;
+            draw(e);
+        }
+
+        // Stop painting
+        function stopPainting() {
+            painting = false;
+            ctx.beginPath();
+        }
+
+        // Draw function
+        function draw(e) {
+            if (!painting) return;
+            ctx.lineWidth = 10;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = "black"; // Paint in black
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX ? e.clientX - rect.left : e.touches[0].clientX - rect.left;
+            const y = e.clientY ? e.clientY - rect.top : e.touches[0].clientY - rect.top;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        // Event listeners for mouse
+        canvas.addEventListener('mousedown', startPainting);
+        canvas.addEventListener('mouseup', stopPainting);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseleave', stopPainting);
+
+        // Event listeners for touch (mobile)
+        canvas.addEventListener('touchstart', startPainting);
+        canvas.addEventListener('touchend', stopPainting);
+        canvas.addEventListener('touchmove', draw);
+
+        // Download the image without the background
+        document.getElementById('downloadButton').addEventListener('click', () => {
+            // Create a new canvas to remove the background image
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = canvas.width;
+            finalCanvas.height = canvas.height;
+            const finalCtx = finalCanvas.getContext('2d');
+            
+            // Draw only the painted strokes on the new canvas
+            finalCtx.drawImage(canvas, 0, 0);
+            finalCtx.globalCompositeOperation = 'destination-out';
+            finalCtx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+            
+            // Generate final image
+            const finalImage = finalCanvas.toDataURL("image/png");
+
+            // Handle mobile download via a hidden link
+            const downloadLink = document.createElement('a');
+            downloadLink.href = finalImage;
+            downloadLink.download = 'painted_image.png';
+            downloadLink.style.display = 'none';
+
+            // Append the link to the body, click it to trigger download, then remove
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        });
+    </script>
+</body>
+</html>

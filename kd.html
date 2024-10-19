@@ -38,11 +38,13 @@
 
         // Load a sample background image (for painting on top)
         const backgroundImage = new Image();
-        backgroundImage.src = 'https://noampro900.github.io/Rodode/frame_027_delay-0.03s.gif';  // Example image URL (replace it)
+        backgroundImage.src = 'https://noampro900.github.io/rodode/frame_027_delay-0.03s.gif';  // Example image URL (replace it)
 
         // Draw the background image on the canvas
         function drawBackground() {
-            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+            if (imageVisible) {
+                ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+            }
         }
 
         // Draw the background image initially
@@ -93,6 +95,7 @@
             imageVisible = false;
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
             ctx.drawImage(canvas, 0, 0); // Retain painting on canvas
+            drawBackground(); // Redraw only the painting
         });
 
         // Show the background image
